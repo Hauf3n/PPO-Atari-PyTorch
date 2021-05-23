@@ -131,6 +131,9 @@ def train(args):
             for i, batch in enumerate(dataloader):
                 optimizer.zero_grad()
                 
+                if i >= 8:
+                    break
+                
                 # get data
                 obs, actions, adv, v_target, old_action_prob = batch 
                 
@@ -139,9 +142,9 @@ def train(args):
                 adv = ( adv - torch.mean(adv) ) / ( torch.std(adv) + 1e-8)
                 
                 # get policy actions probs for prob ratio & value prediction
-                pi, v = agent(obs)
+                policy, v = agent(obs)
                 # get the correct policy actions
-                pi = pi[range(minibatch_size),actions.long()]
+                pi = policy[range(minibatch_size),actions.long()]
                 
                 # probaility ratio r_t(theta)
                 probability_ratio = pi / old_action_prob
@@ -149,7 +152,7 @@ def train(args):
                 # compute CPI
                 CPI = probability_ratio * adv
                 # compute clip*A_t
-                clip = torch.clamp(probability_ratio,1-eps,1+eps) * adv
+                clip = torch.clamp(probability_ratio,1-eps,1+eps) * adv     
                 
                 # policy loss | take minimum
                 L_CLIP = torch.mean(torch.min(CPI, clip))
@@ -157,7 +160,10 @@ def train(args):
                 # value loss | mse
                 L_VF = torch.mean(torch.pow(v - v_target,2))
                 
-                loss = - L_CLIP + c1 * L_VF
+                # policy entropy loss 
+                S = torch.mean( - torch.sum(policy * torch.log(policy),dim=1))
+
+                loss = - L_CLIP + c1 * L_VF - c2 * S
                 loss.backward()
                 optimizer.step()
         
