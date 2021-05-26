@@ -67,7 +67,7 @@ def train(args):
     # arguments
     env_name = args.env
     num_stacked_frames = args.stacked_frames
-    lr = args.lr 
+    start_lr = args.lr 
     gamma = args.gamma
     lam = args.lam
     minibatch_size = args.minibatch_size
@@ -75,7 +75,7 @@ def train(args):
     c1 = args.c1
     c2 = args.c2
     actors = args.actors
-    eps = args.eps
+    start_eps = args.eps
     epochs = args.epochs
     total_steps = args.total_steps
     save_model_steps = args.save_model_steps
@@ -88,7 +88,7 @@ def train(args):
 
     # network and optim
     agent = PPO_Agent(in_channels, num_actions).to(device)
-    optimizer = optim.Adam(agent.parameters(), lr=lr)
+    optimizer = optim.Adam(agent.parameters(), lr=start_lr)
     
     # actors
     env_runners = []
@@ -104,6 +104,14 @@ def train(args):
     start_time = time.time()
     while runner.cur_step < total_steps:
         
+        # change lr and eps over time
+        alpha = 1 - (runner.cur_step / total_steps)
+        current_lr = start_lr * alpha
+        current_eps = start_eps * alpha
+        
+        #set lr
+        for g in optimizer.param_groups:
+            g['lr'] = current_lr
         
         # get data
         batch_obs, batch_actions, batch_adv, batch_v_t, batch_old_action_prob = None, None, None, None, None
@@ -152,7 +160,7 @@ def train(args):
                 # compute CPI
                 CPI = probability_ratio * adv
                 # compute clip*A_t
-                clip = torch.clamp(probability_ratio,1-eps,1+eps) * adv     
+                clip = torch.clamp(probability_ratio,1-current_eps,1+current_eps) * adv     
                 
                 # policy loss | take minimum
                 L_CLIP = torch.mean(torch.min(CPI, clip))
@@ -189,8 +197,8 @@ if __name__ == "__main__":
     # set hyperparameter
     
     args.add_argument('-lr', type=float, default=2.5e-4)
-    args.add_argument('-env', default='PongNoFrameskip-v4')
-    args.add_argument('-lives', type=bool, default=False)
+    args.add_argument('-env', default='BreakoutNoFrameskip-v4')
+    args.add_argument('-lives', type=bool, default=True)
     args.add_argument('-stacked_frames', type=int, default=4)
     args.add_argument('-gamma', type=float, default=0.99)
     args.add_argument('-lam', type=float, default=0.95)
@@ -201,7 +209,7 @@ if __name__ == "__main__":
     args.add_argument('-actors', type=int, default=8)
     args.add_argument('-T', type=int, default=129)
     args.add_argument('-epochs', type=int, default=3)
-    args.add_argument('-total_steps', type=int, default=5000000)
+    args.add_argument('-total_steps', type=int, default=10000000)
     args.add_argument('-save_model_steps', type=int, default=1000000)
     args.add_argument('-report', type=int, default=50000)
     
