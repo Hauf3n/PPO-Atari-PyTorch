@@ -4,4 +4,5 @@
 # Pong
 ![pong](https://github.com/Hauf3n/PPO-Atari-PyTorch/blob/main/media/Pong.png)
  
-Work in progress ...<br>
+# Breakout
+![breakout](https://github.com/Hauf3n/PPO-Atari-PyTorch/blob/main/media/Breakout.png)

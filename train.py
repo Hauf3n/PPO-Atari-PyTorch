@@ -155,7 +155,7 @@ def train(args):
                 pi = policy[range(minibatch_size),actions.long()]
                 
                 # probaility ratio r_t(theta)
-                probability_ratio = pi / old_action_prob
+                probability_ratio = pi / (old_action_prob + 1e-6)
                 
                 # compute CPI
                 CPI = probability_ratio * adv

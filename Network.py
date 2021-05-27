@@ -25,8 +25,9 @@ class PPO_Network(nn.Module):
         ]
         
         self.network = nn.Sequential(*network)
+        self.softmax = nn.Softmax(dim=1)
     
     def forward(self, x):
         policy, value = torch.split(self.network(x),(self.num_actions, 1), dim=1)
-        policy = F.softmax(policy, dim=1)
+        policy = self.softmax(policy)
         return policy, value
