@@ -155,7 +155,7 @@ def train(args):
                 pi = policy[range(minibatch_size),actions.long()]
                 
                 # probaility ratio r_t(theta)
-                probability_ratio = pi / (old_action_prob + 1e-6)
+                probability_ratio = pi / (old_action_prob + 1e-8)
                 
                 # compute CPI
                 CPI = probability_ratio * adv
@@ -169,7 +169,7 @@ def train(args):
                 L_VF = torch.mean(torch.pow(v - v_target,2))
                 
                 # policy entropy loss 
-                S = torch.mean( - torch.sum(policy * torch.log(policy),dim=1))
+                S = torch.mean( - torch.sum(policy * torch.log(policy + 1e-8),dim=1))
 
                 loss = - L_CLIP + c1 * L_VF - c2 * S
                 loss.backward()
