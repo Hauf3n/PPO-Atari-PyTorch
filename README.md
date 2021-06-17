@@ -6,3 +6,6 @@
  
 # Breakout
 ![breakout](https://github.com/Hauf3n/PPO-Atari-PyTorch/blob/main/media/Breakout.png)
+
+# Seaquest
+![seaquest](https://github.com/Hauf3n/PPO-Atari-PyTorch/blob/main/media/Seaquest.png)

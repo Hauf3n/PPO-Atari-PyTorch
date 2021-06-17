@@ -197,7 +197,7 @@ if __name__ == "__main__":
     # set hyperparameter
     
     args.add_argument('-lr', type=float, default=2.5e-4)
-    args.add_argument('-env', default='BreakoutNoFrameskip-v4')
+    args.add_argument('-env', default='SeaquestNoFrameskip-v4')
     args.add_argument('-lives', type=bool, default=True)
     args.add_argument('-stacked_frames', type=int, default=4)
     args.add_argument('-gamma', type=float, default=0.99)
